@@ -11,10 +11,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.thk.cleantodo.ui.TodoScreen
 import com.thk.cleantodo.ui.theme.CleanTodoTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private val todoViewModel by viewModels<TodoViewModel>()
+    private val todoViewModel: TodoViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

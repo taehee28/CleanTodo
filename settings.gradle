@@ -14,5 +14,5 @@ dependencyResolutionManagement {
 }
 rootProject.name = "CleanTodo"
 include ':presentation'
-include ':domain'
 include ':data'
+include ':domain'

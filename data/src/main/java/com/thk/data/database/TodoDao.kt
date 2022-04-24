@@ -8,5 +8,5 @@ import com.thk.data.TodoRow
 @Dao
 interface TodoDao {
     @Query("select * from $TABLE_NAME")
-    suspend fun getTodoList(): List<TodoRow>
+    suspend fun getTodoItems(): List<TodoRow>
 }

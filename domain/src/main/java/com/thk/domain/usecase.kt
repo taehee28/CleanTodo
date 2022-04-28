@@ -5,3 +5,7 @@ import javax.inject.Inject
 class GetTodoListUseCase @Inject constructor(private val repository: TodoRepository) {
     suspend fun invoke() = repository.getTodoItems()
 }
+
+class AddNewTodoUseCase @Inject constructor(private val repository: TodoRepository) {
+    suspend fun invoke(newTodo: Todo) = repository.addNewTodo(newTodo)
+}

@@ -8,4 +8,9 @@ class TodoRepositoryImpl @Inject constructor(private val todoDataSource: TodoDat
     override suspend fun getTodoItems(): List<Todo> {
         return todoDataSource.getTodoItems().map { mapperToTodo(it) }
     }
+
+    override suspend fun addNewTodo(newTodo: Todo) {
+        val todoRow = mapperToTodoRow(newTodo)
+        todoDataSource.addNewTodo(todoRow)
+    }
 }

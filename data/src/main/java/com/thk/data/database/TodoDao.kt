@@ -1,6 +1,7 @@
 package com.thk.data.database
 
 import androidx.room.Dao
+import androidx.room.Insert
 import androidx.room.Query
 import com.thk.data.TABLE_NAME
 import com.thk.data.TodoRow
@@ -9,4 +10,7 @@ import com.thk.data.TodoRow
 interface TodoDao {
     @Query("select * from $TABLE_NAME")
     suspend fun getTodoItems(): List<TodoRow>
+
+    @Insert
+    suspend fun addNewTodo(todoRow: TodoRow)
 }

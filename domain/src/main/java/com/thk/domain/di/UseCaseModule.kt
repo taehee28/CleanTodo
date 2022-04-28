@@ -1,5 +1,6 @@
 package com.thk.domain.di
 
+import com.thk.domain.AddNewTodoUseCase
 import com.thk.domain.GetTodoListUseCase
 import com.thk.domain.TodoRepository
 import dagger.Module
@@ -15,5 +16,10 @@ object UseCaseModule {
     @Singleton
     fun provideGetTodoListUseCase(todoRepository: TodoRepository) =
         GetTodoListUseCase(todoRepository)
+
+    @Provides
+    @Singleton
+    fun provideAddNewTodoUseCase(todoRepository: TodoRepository) =
+        AddNewTodoUseCase(todoRepository)
 
 }

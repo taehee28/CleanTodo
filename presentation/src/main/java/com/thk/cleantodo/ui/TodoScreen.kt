@@ -2,6 +2,7 @@
 
 package com.thk.cleantodo.ui
 
+import android.util.Log
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -25,8 +26,13 @@ import com.thk.cleantodo.ui.theme.CleanTodoTheme
 import com.thk.domain.Todo
 
 @Composable
-fun TodoScreen(todoItems: List<Todo>) {
+fun TodoScreen(
+    todoItems: List<Todo>,
+    onAddNewTodo: (String) -> Unit,
+) {
     val (input, setInput) = remember { mutableStateOf("")}
+
+    Log.d("TAG", ">>>>>>>>>> TodoScreen: todoItems size = ${todoItems.size}")
 
     Scaffold(
         topBar = {
@@ -50,7 +56,12 @@ fun TodoScreen(todoItems: List<Todo>) {
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Button(
-                    onClick = { /*TODO*/ }
+                    onClick = {
+                        if (input.isEmpty()) return@Button
+
+                        onAddNewTodo(input)
+                        setInput("")
+                    }
                 ) {
                     Icon(Icons.Filled.Send, contentDescription = "send")
                 }
@@ -71,7 +82,7 @@ fun TodoScreen(todoItems: List<Todo>) {
 @Preview
 fun TodoScreenPreview()  {
     CleanTodoTheme {
-        TodoScreen(emptyList())
+        TodoScreen(emptyList(), {})
     }
 }
 

@@ -43,29 +43,7 @@ fun TodoScreen(
             )
         },
         bottomBar = {
-            Row(
-                modifier = Modifier
-                    .padding(horizontal = 8.dp)
-                    .padding(bottom = 4.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                OutlinedTextField(
-                    value = input,
-                    onValueChange = setInput,
-                    modifier = Modifier.weight(1f),
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Button(
-                    onClick = {
-                        if (input.isEmpty()) return@Button
-
-                        onAddNewTodo(input)
-                        setInput("")
-                    }
-                ) {
-                    Icon(Icons.Filled.Send, contentDescription = "send")
-                }
-            }
+            TodoInput(input = input, setInput = setInput, onAddNewTodo = onAddNewTodo)
         }
     ) {
         TodoList(
@@ -83,6 +61,37 @@ fun TodoScreen(
 fun TodoScreenPreview()  {
     CleanTodoTheme {
         TodoScreen(emptyList(), {})
+    }
+}
+
+@Composable
+fun TodoInput(
+    input: String,
+    setInput: (String) -> Unit,
+    onAddNewTodo: (String) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .padding(horizontal = 8.dp)
+            .padding(bottom = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        OutlinedTextField(
+            value = input,
+            onValueChange = setInput,
+            modifier = Modifier.weight(1f),
+        )
+        Spacer(modifier = Modifier.width(4.dp))
+        Button(
+            onClick = {
+                if (input.trim().isEmpty()) return@Button
+
+                onAddNewTodo(input)
+                setInput("")
+            }
+        ) {
+            Icon(Icons.Filled.Send, contentDescription = "send")
+        }
     }
 }
 

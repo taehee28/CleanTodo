@@ -3,6 +3,7 @@ package com.thk.data.database
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 import com.thk.data.TABLE_NAME
 import com.thk.data.TodoRow
 
@@ -13,4 +14,7 @@ interface TodoDao {
 
     @Insert
     suspend fun addNewTodo(todoRow: TodoRow)
+
+    @Update
+    suspend fun setCompleted(todoRow: TodoRow)
 }

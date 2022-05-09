@@ -9,3 +9,9 @@ class GetTodoListUseCase @Inject constructor(private val repository: TodoReposit
 class AddNewTodoUseCase @Inject constructor(private val repository: TodoRepository) {
     suspend fun invoke(newTodo: Todo) = repository.addNewTodo(newTodo)
 }
+
+class SetCompletedUseCase @Inject constructor(private val repository: TodoRepository) {
+    suspend fun invoke(todo: Todo) {
+        repository.setCompleted(todo = todo)
+    }
+}

@@ -37,7 +37,7 @@ fun TodoApp(todoViewModel: TodoViewModel) {
         ) {
             TodoScreen(
                 todoItems = todoViewModel.todoItems,
-                onAddNewTodo = todoViewModel::addNewTodo
+                onAddNewTodo = todoViewModel::addNewTodo,
             )
         }
     }

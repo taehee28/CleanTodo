@@ -2,21 +2,16 @@
 
 package com.thk.cleantodo.ui
 
-import android.util.Log
-import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextDecoration
@@ -31,8 +26,6 @@ fun TodoScreen(
     onAddNewTodo: (String) -> Unit,
 ) {
     val (input, setInput) = remember { mutableStateOf("")}
-
-    Log.d("TAG", ">>>>>>>>>> TodoScreen: todoItems size = ${todoItems.size}")
 
     Scaffold(
         topBar = {
@@ -105,15 +98,14 @@ fun TodoList(
         contentPadding = PaddingValues(horizontal = 8.dp)
     ) {
         items(todoItems) {
-            TodoRow(isCompleted = it.isCompleted, content = it.content)
+            TodoRow(todo = it)
         }
     }
 }
 
 @Composable
 fun TodoRow(
-    isCompleted: Boolean,
-    content: String
+    todo: Todo,
 ) {
 
     Card(
@@ -125,15 +117,14 @@ fun TodoRow(
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             Checkbox(
-                checked = isCompleted,
+                checked = todo.isCompleted,
                 onCheckedChange = {
-
                 }
             )
 
             Text(
-                text = content,
-                textDecoration = if (isCompleted) TextDecoration.LineThrough else TextDecoration.None
+                text = todo.content,
+                textDecoration = if (todo.isCompleted) TextDecoration.LineThrough else TextDecoration.None
             )
         }
 

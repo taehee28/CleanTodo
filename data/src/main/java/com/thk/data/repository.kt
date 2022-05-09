@@ -13,4 +13,9 @@ class TodoRepositoryImpl @Inject constructor(private val todoDataSource: TodoDat
         val todoRow = mapperToTodoRow(newTodo)
         todoDataSource.addNewTodo(todoRow)
     }
+
+    override suspend fun setCompleted(todo: Todo) {
+        val todoRow = mapperToTodoRow(todo)
+        todoDataSource.setCompleted(todoRow)
+    }
 }

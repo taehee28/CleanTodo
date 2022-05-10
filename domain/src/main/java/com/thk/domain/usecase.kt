@@ -3,7 +3,7 @@ package com.thk.domain
 import javax.inject.Inject
 
 class GetTodoListUseCase @Inject constructor(private val repository: TodoRepository) {
-    suspend fun invoke() = repository.getTodoItems()
+    fun invoke() = repository.getTodoItems()
 }
 
 class AddNewTodoUseCase @Inject constructor(private val repository: TodoRepository) {

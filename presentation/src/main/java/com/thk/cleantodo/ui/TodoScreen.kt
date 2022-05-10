@@ -19,12 +19,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.thk.cleantodo.ui.theme.CleanTodoTheme
 import com.thk.domain.Todo
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.emptyFlow
 
 @Composable
 fun TodoScreen(
-    todoItems: List<Todo>,
+    todoItemsFlow: StateFlow<List<Todo>>,
     onAddNewTodo: (String) -> Unit,
 ) {
+    val todoItems by todoItemsFlow.collectAsState()
     val (input, setInput) = remember { mutableStateOf("")}
 
     Scaffold(
@@ -53,7 +57,7 @@ fun TodoScreen(
 @Preview
 fun TodoScreenPreview()  {
     CleanTodoTheme {
-        TodoScreen(emptyList(), {})
+        TodoScreen(MutableStateFlow(emptyList()), {})
     }
 }
 

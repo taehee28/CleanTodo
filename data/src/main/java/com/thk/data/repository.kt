@@ -2,11 +2,14 @@ package com.thk.data
 
 import com.thk.domain.Todo
 import com.thk.domain.TodoRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class TodoRepositoryImpl @Inject constructor(private val todoDataSource: TodoDataSource) : TodoRepository {
-    override suspend fun getTodoItems(): List<Todo> {
-        return todoDataSource.getTodoItems().map { mapperToTodo(it) }
+    override fun getTodoItems(): Flow<List<Todo>> {
+        return todoDataSource.getTodoItems().map { list -> list.map { mapperToTodo(it) } }
     }
 
     override suspend fun addNewTodo(newTodo: Todo) {

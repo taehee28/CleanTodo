@@ -1,5 +1,6 @@
 package com.thk.cleantodo
 
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.LiveData
@@ -11,6 +12,9 @@ import com.thk.domain.GetTodoListUseCase
 import com.thk.domain.SetCompletedUseCase
 import com.thk.domain.Todo
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -21,12 +25,14 @@ class TodoViewModel @Inject constructor(
     private val setCompletedUseCase: SetCompletedUseCase
 ) : ViewModel() {
 
-    var todoItems = mutableStateListOf<Todo>()
+    var todoItems = MutableStateFlow<List<Todo>>(emptyList())
         private set
 
     init {
         viewModelScope.launch {
-            todoItems.addAll(getTodoListUseCase.invoke().toMutableStateList())
+            getTodoListUseCase.invoke().collect {
+                todoItems.emit(it)
+            }
         }
     }
 
@@ -34,8 +40,6 @@ class TodoViewModel @Inject constructor(
         // TODO: 새로운 todo의 인스턴스를 만드는건 UseCase로 넘기기
 
         val newTodo = Todo(content = content)
-
-        todoItems.add(newTodo)
 
         viewModelScope.launch {
             addNewTodoUseCase.invoke(newTodo = newTodo)

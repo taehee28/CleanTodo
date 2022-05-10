@@ -12,7 +12,6 @@ import androidx.compose.ui.Modifier
 import com.thk.cleantodo.ui.TodoScreen
 import com.thk.cleantodo.ui.theme.CleanTodoTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.runBlocking
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -36,7 +35,7 @@ fun TodoApp(todoViewModel: TodoViewModel) {
             color = MaterialTheme.colors.background
         ) {
             TodoScreen(
-                todoItems = todoViewModel.todoItems,
+                todoItemsFlow = todoViewModel.todoItems,
                 onAddNewTodo = todoViewModel::addNewTodo,
             )
         }

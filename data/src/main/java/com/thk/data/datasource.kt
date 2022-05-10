@@ -1,16 +1,18 @@
 package com.thk.data
 
 import com.thk.data.database.TodoDao
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 interface TodoDataSource {
-    suspend fun getTodoItems(): List<TodoRow>
+    fun getTodoItems(): Flow<List<TodoRow>>
     suspend fun addNewTodo(todoRow: TodoRow)
     suspend fun setCompleted(todoRow: TodoRow)
 }
 
 class TodoDataSourceImpl @Inject constructor(private val dao: TodoDao) : TodoDataSource {
-    override suspend fun getTodoItems(): List<TodoRow> {
+    override fun getTodoItems(): Flow<List<TodoRow>> {
         return dao.getTodoItems()
     }
 

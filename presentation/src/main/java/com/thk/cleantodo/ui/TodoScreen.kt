@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.emptyFlow
 fun TodoScreen(
     todoItemsFlow: StateFlow<List<Todo>>,
     onAddNewTodo: (String) -> Unit,
+    onCheckCompleted: (Todo) -> Unit
 ) {
     val todoItems by todoItemsFlow.collectAsState()
     val (input, setInput) = remember { mutableStateOf("")}
@@ -48,7 +49,8 @@ fun TodoScreen(
                 top = it.calculateTopPadding(),
                 bottom = it.calculateBottomPadding()
             ),
-            todoItems = todoItems
+            todoItems = todoItems,
+            onCheckCompleted = onCheckCompleted
         )
     }
 }
@@ -57,7 +59,7 @@ fun TodoScreen(
 @Preview
 fun TodoScreenPreview()  {
     CleanTodoTheme {
-        TodoScreen(MutableStateFlow(emptyList()), {})
+        TodoScreen(MutableStateFlow(emptyList()), {}, { todo -> })
     }
 }
 
@@ -96,13 +98,14 @@ fun TodoInput(
 fun TodoList(
     modifier: Modifier = Modifier,
     todoItems: List<Todo>,
+    onCheckCompleted: (Todo) -> Unit
 ) {
     LazyColumn(
         modifier = modifier,
         contentPadding = PaddingValues(horizontal = 8.dp)
     ) {
         items(todoItems) {
-            TodoRow(todo = it)
+            TodoRow(todo = it, onCheckCompleted = onCheckCompleted)
         }
     }
 }
@@ -110,6 +113,7 @@ fun TodoList(
 @Composable
 fun TodoRow(
     todo: Todo,
+    onCheckCompleted: (Todo) -> Unit
 ) {
 
     Card(
@@ -123,6 +127,7 @@ fun TodoRow(
             Checkbox(
                 checked = todo.isCompleted,
                 onCheckedChange = {
+                    onCheckCompleted(todo.copy(isCompleted = it))
                 }
             )
 

@@ -37,6 +37,7 @@ fun TodoApp(todoViewModel: TodoViewModel) {
             TodoScreen(
                 todoItemsFlow = todoViewModel.todoItems,
                 onAddNewTodo = todoViewModel::addNewTodo,
+                onCheckCompleted = todoViewModel::onCheckCompleted
             )
         }
     }

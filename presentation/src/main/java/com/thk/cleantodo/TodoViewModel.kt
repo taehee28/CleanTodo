@@ -51,7 +51,7 @@ class TodoViewModel @Inject constructor(
         }
     }
 
-    fun setCompleted(todo: Todo) = viewModelScope.launch {
+    fun onCheckCompleted(todo: Todo) = viewModelScope.launch {
         setCompletedUseCase.invoke(todo = todo)
     }
 }

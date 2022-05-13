@@ -3,12 +3,8 @@
 package com.thk.cleantodo.ui
 
 import android.util.Log
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.FlingBehavior
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -17,10 +13,8 @@ import androidx.compose.material.*
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material3.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -31,22 +25,16 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.thk.cleantodo.ui.theme.CleanTodoTheme
-import com.thk.cleantodo.util.logd
 import com.thk.domain.Todo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.emptyFlow
-import kotlin.math.roundToInt
 
 @Composable
 fun TodoScreen(
@@ -156,22 +144,20 @@ fun TodoRow(
         state = dismissState,
         directions = setOf(DismissDirection.EndToStart),
         background = {
-            val direction = dismissState.dismissDirection ?: return@SwipeToDismiss
-
-            Log.d("TAG", "TodoRow: ${dismissState.progress}")
-
-            
-//            val backgroundColor by animateColorAsState(targetValue = Color.Red.copy(alpha = dismissState.progress.fraction))
-            // FIXME: 더 괜찮은 방법 찾기
-            val alpha by animateFloatAsState(
-                targetValue = when(direction) {
-                    DismissDirection.EndToStart -> {
-                        dismissState.progress.fraction.run {
-                            if (this < 0.7f) this else (1f - this)
-                        }
+            val backgroundAlpha by animateFloatAsState(
+                dismissState.progress.fraction.let {
+                    when (it) {
+                        in 0f..0.6f -> it
+                        in 0.6f..0.85f -> 0.6f
+                        else -> 0f
                     }
-                    else -> 0f
                 }
+            )
+
+            // FIXME: 백그라운드 알파랑 아이콘 알파 애니메이션 타이밍이 안맞음  
+
+            val iconAlpha by animateFloatAsState(
+                if (dismissState.progress.fraction < 1f) 1f else 0f
             )
 
             Box(
@@ -179,12 +165,16 @@ fun TodoRow(
                     .fillMaxWidth()
                     .fillMaxHeight()
                     .padding(vertical = 4.dp)
-                    .background(Color.Red.copy(alpha = alpha))
-                    .padding(end = 16.dp)
-                    .clip(RoundedCornerShape(16.dp)),
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color.Red.copy(alpha = backgroundAlpha))
+                    .padding(end = 16.dp),
                 contentAlignment = Alignment.CenterEnd
             ) {
-                Icon(imageVector = Icons.Outlined.Delete, contentDescription = "delete")
+                Icon(
+                    imageVector = Icons.Outlined.Delete,
+                    contentDescription = "delete",
+                    modifier = Modifier.alpha(iconAlpha)
+                )
             }
         },
         dismissContent = {

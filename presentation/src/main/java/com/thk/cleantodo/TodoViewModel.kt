@@ -25,7 +25,7 @@ class TodoViewModel @Inject constructor(
 
     val todoItems: StateFlow<List<Todo>> = getTodoListUseCase.invoke().stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(),
+        started = SharingStarted.WhileSubscribed(5000),
         initialValue = emptyList()
     )
 

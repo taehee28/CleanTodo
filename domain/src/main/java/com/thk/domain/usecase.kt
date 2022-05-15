@@ -15,3 +15,9 @@ class SetCompletedUseCase @Inject constructor(private val repository: TodoReposi
         repository.setCompleted(todo = todo)
     }
 }
+
+class DeleteTodoUseCase @Inject constructor(private val repository: TodoRepository) {
+    suspend fun invoke(todo: Todo) {
+        repository.deleteTodo(todo = todo)
+    }
+}

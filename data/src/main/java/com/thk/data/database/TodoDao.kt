@@ -1,9 +1,6 @@
 package com.thk.data.database
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
-import androidx.room.Update
+import androidx.room.*
 import com.thk.data.TABLE_NAME
 import com.thk.data.TodoRow
 import kotlinx.coroutines.flow.Flow
@@ -19,4 +16,7 @@ interface TodoDao {
 
     @Update
     suspend fun setCompleted(todoRow: TodoRow)
+
+    @Delete
+    suspend fun deleteTodo(todoRow: TodoRow)
 }

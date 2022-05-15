@@ -6,4 +6,5 @@ interface TodoRepository {
     fun getTodoItems(): Flow<List<Todo>>
     suspend fun addNewTodo(newTodo: Todo)
     suspend fun setCompleted(todo: Todo)
+    suspend fun deleteTodo(todo:Todo)
 }

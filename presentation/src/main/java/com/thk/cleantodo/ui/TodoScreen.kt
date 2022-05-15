@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.thk.cleantodo.ui
 
@@ -40,7 +40,8 @@ import kotlinx.coroutines.flow.StateFlow
 fun TodoScreen(
     todoItemsFlow: StateFlow<List<Todo>>,
     onAddNewTodo: (String) -> Unit,
-    onCheckCompleted: (Todo) -> Unit
+    onCheckCompleted: (Todo) -> Unit,
+    onDeleteTodo: (Todo) -> Unit
 ) {
     val todoItems by todoItemsFlow.collectAsState()
     val (input, setInput) = remember { mutableStateOf("")}
@@ -63,7 +64,8 @@ fun TodoScreen(
                 bottom = it.calculateBottomPadding()
             ),
             todoItems = todoItems,
-            onCheckCompleted = onCheckCompleted
+            onCheckCompleted = onCheckCompleted,
+            onDeleteTodo = onDeleteTodo
         )
     }
 }
@@ -72,7 +74,7 @@ fun TodoScreen(
 @Preview
 fun TodoScreenPreview()  {
     CleanTodoTheme {
-        TodoScreen(MutableStateFlow(emptyList()), {}, { todo -> })
+        TodoScreen(MutableStateFlow(emptyList()), {}, {}, {})
     }
 }
 
@@ -111,14 +113,19 @@ fun TodoInput(
 fun TodoList(
     modifier: Modifier = Modifier,
     todoItems: List<Todo>,
-    onCheckCompleted: (Todo) -> Unit
+    onCheckCompleted: (Todo) -> Unit,
+    onDeleteTodo: (Todo) -> Unit
 ) {
     LazyColumn(
         modifier = modifier,
         contentPadding = PaddingValues(horizontal = 8.dp)
     ) {
-        items(todoItems) {
-            TodoRow(todo = it, onCheckCompleted = onCheckCompleted)
+        items(todoItems, { it.num }) {
+            TodoRow(
+                todo = it,
+                onCheckCompleted = onCheckCompleted,
+                onDeleteTodo = onDeleteTodo
+            )
         }
     }
 }
@@ -127,23 +134,20 @@ fun TodoList(
 @Composable
 fun TodoRow(
     todo: Todo,
-    onCheckCompleted: (Todo) -> Unit
+    onCheckCompleted: (Todo) -> Unit,
+    onDeleteTodo: (Todo) -> Unit
 ) {
-    val dismissState = rememberDismissState(confirmStateChange = {
-        when (it) {
-            DismissValue.Default -> false
-            DismissValue.DismissedToStart -> {
-                Log.d("TAG", "TodoRow: DismissedToStart")
-                true
-            }
-            else -> false
-        }
-    })
+    val dismissState = rememberDismissState()
+    if (dismissState.isDismissed(DismissDirection.EndToStart)) {
+        onDeleteTodo(todo)
+    }
     
     SwipeToDismiss(
         state = dismissState,
         directions = setOf(DismissDirection.EndToStart),
         background = {
+            val direction = dismissState.dismissDirection ?: return@SwipeToDismiss
+
             val backgroundAlpha by animateFloatAsState(
                 dismissState.progress.fraction.let {
                     when (it) {
@@ -154,7 +158,7 @@ fun TodoRow(
                 }
             )
 
-            // FIXME: 백그라운드 알파랑 아이콘 알파 애니메이션 타이밍이 안맞음  
+            // FIXME: 백그라운드 알파랑 아이콘 알파 애니메이션 타이밍이 안맞음
 
             val iconAlpha by animateFloatAsState(
                 if (dismissState.progress.fraction < 1f) 1f else 0f

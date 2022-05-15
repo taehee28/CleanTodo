@@ -9,6 +9,7 @@ interface TodoDataSource {
     fun getTodoItems(): Flow<List<TodoRow>>
     suspend fun addNewTodo(todoRow: TodoRow)
     suspend fun setCompleted(todoRow: TodoRow)
+    suspend fun deleteTodo(todoRow: TodoRow)
 }
 
 class TodoDataSourceImpl @Inject constructor(private val dao: TodoDao) : TodoDataSource {
@@ -22,5 +23,9 @@ class TodoDataSourceImpl @Inject constructor(private val dao: TodoDao) : TodoDat
 
     override suspend fun setCompleted(todoRow: TodoRow) {
         dao.setCompleted(todoRow)
+    }
+
+    override suspend fun deleteTodo(todoRow: TodoRow) {
+        dao.deleteTodo(todoRow)
     }
 }

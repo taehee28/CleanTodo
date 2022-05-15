@@ -7,10 +7,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.thk.cleantodo.util.logd
-import com.thk.domain.AddNewTodoUseCase
-import com.thk.domain.GetTodoListUseCase
-import com.thk.domain.SetCompletedUseCase
-import com.thk.domain.Todo
+import com.thk.domain.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -20,7 +17,8 @@ import javax.inject.Inject
 class TodoViewModel @Inject constructor(
     private val getTodoListUseCase: GetTodoListUseCase,
     private val addNewTodoUseCase: AddNewTodoUseCase,
-    private val setCompletedUseCase: SetCompletedUseCase
+    private val setCompletedUseCase: SetCompletedUseCase,
+    private val deleteTodoUseCase: DeleteTodoUseCase
 ) : ViewModel() {
 
     val todoItems: StateFlow<List<Todo>> = getTodoListUseCase.invoke().stateIn(
@@ -53,5 +51,9 @@ class TodoViewModel @Inject constructor(
 
     fun onCheckCompleted(todo: Todo) = viewModelScope.launch {
         setCompletedUseCase.invoke(todo = todo)
+    }
+
+    fun deleteTodo(todo: Todo) = viewModelScope.launch {
+        deleteTodoUseCase.invoke(todo)
     }
 }

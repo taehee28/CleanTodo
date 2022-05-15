@@ -2,6 +2,7 @@
 
 package com.thk.cleantodo.ui
 
+import android.accessibilityservice.AccessibilityService
 import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
@@ -9,6 +10,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
@@ -28,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -84,6 +88,13 @@ fun TodoInput(
     setInput: (String) -> Unit,
     onAddNewTodo: (String) -> Unit
 ) {
+    val onClick = {
+        if (input.trim().isNotEmpty()) {
+            setInput("")
+            onAddNewTodo(input)
+        }
+    }
+
     Row(
         modifier = Modifier
             .padding(horizontal = 8.dp)
@@ -93,16 +104,13 @@ fun TodoInput(
         OutlinedTextField(
             value = input,
             onValueChange = setInput,
-            modifier = Modifier.weight(1f),
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = { onClick() }),
+            modifier = Modifier.weight(1f)
         )
         Spacer(modifier = Modifier.width(4.dp))
         Button(
-            onClick = {
-                if (input.trim().isEmpty()) return@Button
-
-                onAddNewTodo(input)
-                setInput("")
-            }
+            onClick = onClick
         ) {
             Icon(Icons.Filled.Send, contentDescription = "send")
         }

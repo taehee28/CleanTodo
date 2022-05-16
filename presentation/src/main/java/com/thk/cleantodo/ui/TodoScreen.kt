@@ -1,8 +1,10 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 
 package com.thk.cleantodo.ui
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -168,7 +170,8 @@ fun TodoList(
             TodoRow(
                 todo = it,
                 onCheckCompleted = onCheckCompleted,
-                onDeleteTodo = onDeleteTodo
+                onDeleteTodo = onDeleteTodo,
+                modifier = Modifier.animateItemPlacement(animationSpec = tween(durationMillis = 300))
             )
         }
     }
@@ -179,7 +182,8 @@ fun TodoList(
 fun TodoRow(
     todo: Todo,
     onCheckCompleted: (Todo) -> Unit,
-    onDeleteTodo: (Todo) -> Unit
+    onDeleteTodo: (Todo) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val dismissState = rememberDismissState()
     if (dismissState.isDismissed(DismissDirection.EndToStart)) {
@@ -187,6 +191,7 @@ fun TodoRow(
     }
     
     SwipeToDismiss(
+        modifier = modifier,
         state = dismissState,
         directions = setOf(DismissDirection.EndToStart),
         background = {

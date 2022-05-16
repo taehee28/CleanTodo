@@ -2,8 +2,6 @@
 
 package com.thk.cleantodo.ui
 
-import android.accessibilityservice.AccessibilityService
-import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -11,7 +9,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -19,7 +16,7 @@ import androidx.compose.material.*
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.*
 import androidx.compose.material3.Button
@@ -33,8 +30,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
@@ -71,7 +66,7 @@ fun TodoScreen(
             TodoInput(
                 input = input,
                 setInput = setInput,
-                onSendClick = {
+                onAddButtonClick = {
                     if (input.trim().isNotEmpty()) {
                         setInput("")
                         focusManager.clearFocus(true)
@@ -113,7 +108,7 @@ fun TodoScreenPreview()  {
 fun TodoInput(
     input: String,
     setInput: (String) -> Unit,
-    onSendClick: () -> Unit
+    onAddButtonClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -126,14 +121,14 @@ fun TodoInput(
             onValueChange = setInput,
             singleLine = true,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = { onSendClick() }),
+            keyboardActions = KeyboardActions(onDone = { onAddButtonClick() }),
             modifier = Modifier.weight(1f)
         )
         Spacer(modifier = Modifier.width(4.dp))
         Button(
-            onClick = onSendClick
+            onClick = onAddButtonClick
         ) {
-            Icon(Icons.Filled.Send, contentDescription = "send")
+            Icon(Icons.Default.Add, contentDescription = "add")
         }
     }
 }

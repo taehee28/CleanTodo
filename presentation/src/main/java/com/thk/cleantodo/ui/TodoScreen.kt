@@ -3,12 +3,15 @@
 package com.thk.cleantodo.ui
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -30,6 +33,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
@@ -40,6 +45,7 @@ import com.thk.cleantodo.ui.theme.CleanTodoTheme
 import com.thk.domain.Todo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 @Composable
 fun TodoScreen(
@@ -53,6 +59,9 @@ fun TodoScreen(
 
     val interactionSource = remember { MutableInteractionSource() }
     val focusManager = LocalFocusManager.current
+
+    val scrollState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -73,6 +82,11 @@ fun TodoScreen(
 
                         onAddNewTodo(input)
                     }
+                },
+                onFocusChanged = {
+                    if (it.isFocused) {
+                        scope.launch { scrollState.animateScrollToItem(todoItems.lastIndex) }
+                    }
                 }
             )
         },
@@ -91,7 +105,8 @@ fun TodoScreen(
             ),
             todoItems = todoItems,
             onCheckCompleted = onCheckCompleted,
-            onDeleteTodo = onDeleteTodo
+            onDeleteTodo = onDeleteTodo,
+            scrollState = scrollState
         )
     }
 }
@@ -108,7 +123,8 @@ fun TodoScreenPreview()  {
 fun TodoInput(
     input: String,
     setInput: (String) -> Unit,
-    onAddButtonClick: () -> Unit
+    onAddButtonClick: () -> Unit,
+    onFocusChanged: (FocusState) -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -122,7 +138,9 @@ fun TodoInput(
             singleLine = true,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = { onAddButtonClick() }),
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .weight(1f)
+                .onFocusChanged(onFocusChanged)
         )
         Spacer(modifier = Modifier.width(4.dp))
         Button(
@@ -137,12 +155,14 @@ fun TodoInput(
 fun TodoList(
     modifier: Modifier = Modifier,
     todoItems: List<Todo>,
+    scrollState: LazyListState,
     onCheckCompleted: (Todo) -> Unit,
     onDeleteTodo: (Todo) -> Unit
 ) {
     LazyColumn(
         modifier = modifier,
-        contentPadding = PaddingValues(horizontal = 8.dp)
+        contentPadding = PaddingValues(horizontal = 8.dp),
+        state = scrollState
     ) {
         items(todoItems, { it.num }) {
             TodoRow(

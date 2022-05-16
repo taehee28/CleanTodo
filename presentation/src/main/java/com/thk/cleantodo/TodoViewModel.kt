@@ -39,14 +39,8 @@ class TodoViewModel @Inject constructor(
     }
 
 
-    fun addNewTodo(content: String) {
-        // TODO: 새로운 todo의 인스턴스를 만드는건 UseCase로 넘기기
-
-        val newTodo = Todo(content = content)
-
-        viewModelScope.launch {
-            addNewTodoUseCase.invoke(newTodo = newTodo)
-        }
+    fun addNewTodo(content: String) = viewModelScope.launch {
+        addNewTodoUseCase.invoke(content)
     }
 
     fun onCheckCompleted(todo: Todo) = viewModelScope.launch {

@@ -6,9 +6,12 @@ import android.accessibilityservice.AccessibilityService
 import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -33,6 +36,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
@@ -52,6 +56,9 @@ fun TodoScreen(
     val todoItems by todoItemsFlow.collectAsState()
     val (input, setInput) = remember { mutableStateOf("")}
 
+    val interactionSource = remember { MutableInteractionSource() }
+    val focusManager = LocalFocusManager.current
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -61,8 +68,26 @@ fun TodoScreen(
             )
         },
         bottomBar = {
-            TodoInput(input = input, setInput = setInput, onAddNewTodo = onAddNewTodo)
-        }
+            TodoInput(
+                input = input,
+                setInput = setInput,
+                onSendClick = {
+                    if (input.trim().isNotEmpty()) {
+                        setInput("")
+                        focusManager.clearFocus(true)
+
+                        onAddNewTodo(input)
+                    }
+                }
+            )
+        },
+        modifier = Modifier
+            .clickable(
+                indication = null,
+                interactionSource = interactionSource
+            ) {
+                focusManager.clearFocus(true)
+            }
     ) {
         TodoList(
             Modifier.padding(
@@ -88,15 +113,8 @@ fun TodoScreenPreview()  {
 fun TodoInput(
     input: String,
     setInput: (String) -> Unit,
-    onAddNewTodo: (String) -> Unit
+    onSendClick: () -> Unit
 ) {
-    val onClick = {
-        if (input.trim().isNotEmpty()) {
-            setInput("")
-            onAddNewTodo(input)
-        }
-    }
-
     Row(
         modifier = Modifier
             .padding(horizontal = 8.dp)
@@ -108,12 +126,12 @@ fun TodoInput(
             onValueChange = setInput,
             singleLine = true,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = { onClick() }),
+            keyboardActions = KeyboardActions(onDone = { onSendClick() }),
             modifier = Modifier.weight(1f)
         )
         Spacer(modifier = Modifier.width(4.dp))
         Button(
-            onClick = onClick
+            onClick = onSendClick
         ) {
             Icon(Icons.Filled.Send, contentDescription = "send")
         }

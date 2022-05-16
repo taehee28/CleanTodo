@@ -1,4 +1,6 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
+    ExperimentalFoundationApi::class
+)
 
 package com.thk.cleantodo.ui
 
@@ -199,18 +201,12 @@ fun TodoRow(
 
             val backgroundAlpha by animateFloatAsState(
                 dismissState.progress.fraction.let {
-                    when (it) {
-                        in 0f..0.6f -> it
-                        in 0.6f..0.85f -> 0.6f
-                        else -> 0f
-                    }
+                    if (it <= 0.99f) it else 0f
                 }
             )
 
-            // FIXME: 백그라운드 알파랑 아이콘 알파 애니메이션 타이밍이 안맞음
-
             val iconAlpha by animateFloatAsState(
-                if (dismissState.progress.fraction < 1f) 1f else 0f
+                if (dismissState.progress.fraction <= 0.99f) 1f else 0f
             )
 
             Box(
@@ -219,7 +215,7 @@ fun TodoRow(
                     .fillMaxHeight()
                     .padding(vertical = 4.dp)
                     .clip(RoundedCornerShape(16.dp))
-                    .background(Color.Red.copy(alpha = backgroundAlpha))
+                    .background(Color(0xFFFA8072).copy(alpha = backgroundAlpha))
                     .padding(end = 16.dp),
                 contentAlignment = Alignment.CenterEnd
             ) {

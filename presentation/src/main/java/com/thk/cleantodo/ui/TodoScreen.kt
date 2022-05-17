@@ -164,7 +164,7 @@ fun TodoList(
     onDeleteTodo: (Todo) -> Unit
 ) {
     LazyColumn(
-        modifier = modifier,
+        modifier = modifier.fillMaxHeight(),
         contentPadding = PaddingValues(horizontal = 8.dp),
         state = scrollState
     ) {

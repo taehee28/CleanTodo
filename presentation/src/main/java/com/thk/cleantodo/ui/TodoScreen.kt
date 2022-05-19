@@ -89,7 +89,9 @@ fun TodoScreen(
                 },
                 onFocusChanged = {
                     if (it.isFocused) {
-                        scope.launch { scrollState.animateScrollToItem(todoItems.lastIndex) }
+                        scope.launch {
+                            todoItems.lastIndex.let { index -> if (index > 0) scrollState.animateScrollToItem(index)}
+                        }
                     }
                 }
             )

@@ -1,5 +1,5 @@
 @file:OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
-    ExperimentalFoundationApi::class
+    ExperimentalFoundationApi::class, ExperimentalMaterialApi::class
 )
 
 package com.thk.cleantodo.ui
@@ -171,7 +171,7 @@ fun TodoList(
         state = scrollState
     ) {
         items(todoItems, { it.num }) {
-            TodoRow(
+            SwipeableRow(
                 todo = it,
                 onCheckCompleted = onCheckCompleted,
                 onDeleteTodo = onDeleteTodo,
@@ -181,19 +181,20 @@ fun TodoList(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
+
 @Composable
-fun TodoRow(
+fun SwipeableRow(
     todo: Todo,
     onCheckCompleted: (Todo) -> Unit,
     onDeleteTodo: (Todo) -> Unit,
     modifier: Modifier = Modifier
 ) {
+
     val dismissState = rememberDismissState()
     if (dismissState.isDismissed(DismissDirection.EndToStart)) {
         onDeleteTodo(todo)
     }
-    
+
     SwipeToDismiss(
         modifier = modifier,
         state = dismissState,
@@ -229,29 +230,36 @@ fun TodoRow(
             }
         },
         dismissContent = {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(
-                        checked = todo.isCompleted,
-                        onCheckedChange = {
-                            onCheckCompleted(todo.copy(isCompleted = it))
-                        }
-                    )
-
-                    Text(
-                        text = todo.content,
-                        textDecoration = if (todo.isCompleted) TextDecoration.LineThrough else TextDecoration.None
-                    )
-                }
-
-            }
+            TodoRow(todo = todo, onCheckCompleted = onCheckCompleted)
         }
     )
+}
 
+@Composable
+fun TodoRow(
+    todo: Todo,
+    onCheckCompleted: (Todo) -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Checkbox(
+                checked = todo.isCompleted,
+                onCheckedChange = {
+                    onCheckCompleted(todo.copy(isCompleted = it))
+                }
+            )
+
+            Text(
+                text = todo.content,
+                textDecoration = if (todo.isCompleted) TextDecoration.LineThrough else TextDecoration.None
+            )
+        }
+
+    }
 }

@@ -30,4 +30,8 @@ object UseCaseModule {
     fun provideDeleteTodoUseCase(todoRepository: TodoRepository) =
         DeleteTodoUseCase(todoRepository)
 
+    @Provides
+    @Singleton
+    fun provideUpdateTodoUseCase(todoRepository: TodoRepository) =
+        UpdateTodoUseCase(todoRepository)
 }

@@ -16,7 +16,8 @@ class TodoViewModel @Inject constructor(
     private val getTodoListUseCase: GetTodoListUseCase,
     private val addNewTodoUseCase: AddNewTodoUseCase,
     private val setCompletedUseCase: SetCompletedUseCase,
-    private val deleteTodoUseCase: DeleteTodoUseCase
+    private val deleteTodoUseCase: DeleteTodoUseCase,
+    private val updateTodoUseCase: UpdateTodoUseCase
 ) : ViewModel() {
 
     val todoItems: StateFlow<List<Todo>> = getTodoListUseCase.invoke().stateIn(
@@ -58,8 +59,8 @@ class TodoViewModel @Inject constructor(
         currentEditPosition = todoItems.value.indexOf(todo)
     }
 
-    fun onEditDone(todo: Todo) {
-        logd(todo.toString())
+    fun onEditDone(todo: Todo) = viewModelScope.launch {
+        updateTodoUseCase.invoke(todo)
     }
 
 

@@ -10,6 +10,7 @@ interface TodoDataSource {
     suspend fun addNewTodo(todoRow: TodoRow)
     suspend fun setCompleted(todoRow: TodoRow)
     suspend fun deleteTodo(todoRow: TodoRow)
+    suspend fun updateTodo(todoRow: TodoRow)
 }
 
 class TodoDataSourceImpl @Inject constructor(private val dao: TodoDao) : TodoDataSource {
@@ -27,5 +28,9 @@ class TodoDataSourceImpl @Inject constructor(private val dao: TodoDao) : TodoDat
 
     override suspend fun deleteTodo(todoRow: TodoRow) {
         dao.deleteTodo(todoRow)
+    }
+
+    override suspend fun updateTodo(todoRow: TodoRow) {
+        dao.updateTodo(todoRow)
     }
 }

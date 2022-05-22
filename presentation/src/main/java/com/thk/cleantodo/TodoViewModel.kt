@@ -1,8 +1,6 @@
 package com.thk.cleantodo
 
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.toMutableStateList
+import androidx.compose.runtime.*
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -27,6 +25,11 @@ class TodoViewModel @Inject constructor(
         initialValue = emptyList()
     )
 
+    private var currentEditPosition by mutableStateOf(-1)
+
+    val currentEditTodo: Todo?
+        get() = todoItems.value.getOrNull(currentEditPosition)
+
 //    var todoItems = MutableStateFlow<List<Todo>>(emptyList())
 //        private set
 
@@ -50,4 +53,14 @@ class TodoViewModel @Inject constructor(
     fun deleteTodo(todo: Todo) = viewModelScope.launch {
         deleteTodoUseCase.invoke(todo)
     }
+
+    fun onEditStart(todo: Todo) {
+        currentEditPosition = todoItems.value.indexOf(todo)
+    }
+
+    fun onEditDone(todo: Todo) {
+        logd(todo.toString())
+    }
+
+
 }

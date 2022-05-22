@@ -38,7 +38,10 @@ fun TodoApp(todoViewModel: TodoViewModel) {
                 todoItemsFlow = todoViewModel.todoItems,
                 onAddNewTodo = todoViewModel::addNewTodo,
                 onCheckCompleted = todoViewModel::onCheckCompleted,
-                onDeleteTodo = todoViewModel::deleteTodo
+                onDeleteTodo = todoViewModel::deleteTodo,
+                onEditStart = todoViewModel::onEditStart,
+                onEditDone = todoViewModel::onEditDone,
+                currentEditTodo = todoViewModel.currentEditTodo
             )
         }
     }

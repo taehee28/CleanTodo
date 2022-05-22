@@ -4,12 +4,10 @@
 
 package com.thk.cleantodo.ui
 
+import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -24,6 +22,7 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.*
 import androidx.compose.material3.Button
@@ -37,8 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusState
-import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.focus.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
@@ -56,13 +54,18 @@ fun TodoScreen(
     todoItemsFlow: StateFlow<List<Todo>>,
     onAddNewTodo: (String) -> Unit,
     onCheckCompleted: (Todo) -> Unit,
-    onDeleteTodo: (Todo) -> Unit
+    onDeleteTodo: (Todo) -> Unit,
+    onEditStart: (Todo) -> Unit,
+    onEditDone: (Todo) -> Unit,
+    currentEditTodo: Todo?
 ) {
     val todoItems by todoItemsFlow.collectAsState()
     val (input, setInput) = remember { mutableStateOf("")}
+    var isEditMode by remember { mutableStateOf(false) }
 
     val interactionSource = remember { MutableInteractionSource() }
     val focusManager = LocalFocusManager.current
+    val focusRequester = remember { FocusRequester() }
 
     val scrollState = rememberLazyListState()
     val scope = rememberCoroutineScope()
@@ -81,10 +84,19 @@ fun TodoScreen(
                 setInput = setInput,
                 onAddButtonClick = {
                     if (input.trim().isNotEmpty()) {
+                        onAddNewTodo(input)
+
                         setInput("")
                         focusManager.clearFocus(true)
+                    }
+                },
+                onEditButtonClick = {
+                    if (input.trim().isNotEmpty()) {
+                        currentEditTodo?.let { onEditDone(it.copy(content = input)) }
 
-                        onAddNewTodo(input)
+                        setInput("")
+                        isEditMode = false
+                        focusManager.clearFocus(true)
                     }
                 },
                 onFocusChanged = {
@@ -93,7 +105,9 @@ fun TodoScreen(
                             todoItems.lastIndex.let { index -> if (index > 0) scrollState.animateScrollToItem(index)}
                         }
                     }
-                }
+                },
+                focusRequester = focusRequester,
+                isEditMode = isEditMode
             )
         },
         modifier = Modifier
@@ -112,7 +126,13 @@ fun TodoScreen(
             todoItems = todoItems,
             onCheckCompleted = onCheckCompleted,
             onDeleteTodo = onDeleteTodo,
-            scrollState = scrollState
+            scrollState = scrollState,
+            onEditStart = { todo ->
+                onEditStart(todo)
+                focusRequester.requestFocus()
+                setInput(todo.content)
+                isEditMode = true
+            }
         )
     }
 }
@@ -121,7 +141,7 @@ fun TodoScreen(
 @Preview
 fun TodoScreenPreview()  {
     CleanTodoTheme {
-        TodoScreen(MutableStateFlow(emptyList()), {}, {}, {})
+        TodoScreen(MutableStateFlow(emptyList()), {}, {}, {}, {}, {}, Todo())
     }
 }
 
@@ -130,8 +150,12 @@ fun TodoInput(
     input: String,
     setInput: (String) -> Unit,
     onAddButtonClick: () -> Unit,
-    onFocusChanged: (FocusState) -> Unit
+    onFocusChanged: (FocusState) -> Unit,
+    focusRequester: FocusRequester,
+    isEditMode: Boolean,
+    onEditButtonClick: () -> Unit,
 ) {
+
     Row(
         modifier = Modifier
             .padding(horizontal = 8.dp)
@@ -147,12 +171,19 @@ fun TodoInput(
             modifier = Modifier
                 .weight(1f)
                 .onFocusChanged(onFocusChanged)
+                .focusRequester(focusRequester)
         )
         Spacer(modifier = Modifier.width(4.dp))
         Button(
-            onClick = onAddButtonClick
+            onClick = {
+                if (isEditMode) onEditButtonClick() else onAddButtonClick()
+            }
         ) {
-            Icon(Icons.Default.Add, contentDescription = "add")
+            if (isEditMode) {
+                Icon(Icons.Default.Edit, contentDescription = "edit")
+            } else {
+                Icon(Icons.Default.Add, contentDescription = "add")
+            }
         }
     }
 }
@@ -163,7 +194,8 @@ fun TodoList(
     todoItems: List<Todo>,
     scrollState: LazyListState,
     onCheckCompleted: (Todo) -> Unit,
-    onDeleteTodo: (Todo) -> Unit
+    onDeleteTodo: (Todo) -> Unit,
+    onEditStart: (Todo) -> Unit
 ) {
     LazyColumn(
         modifier = modifier.fillMaxHeight(),
@@ -175,6 +207,7 @@ fun TodoList(
                 todo = it,
                 onCheckCompleted = onCheckCompleted,
                 onDeleteTodo = onDeleteTodo,
+                onEditStart = onEditStart,
                 modifier = Modifier.animateItemPlacement(animationSpec = tween(durationMillis = 300))
             )
         }
@@ -187,6 +220,7 @@ fun SwipeableRow(
     todo: Todo,
     onCheckCompleted: (Todo) -> Unit,
     onDeleteTodo: (Todo) -> Unit,
+    onEditStart: (Todo) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -230,7 +264,11 @@ fun SwipeableRow(
             }
         },
         dismissContent = {
-            TodoRow(todo = todo, onCheckCompleted = onCheckCompleted)
+            TodoRow(
+                todo = todo,
+                onCheckCompleted = onCheckCompleted,
+                onEditStart = onEditStart
+            )
         }
     )
 }
@@ -238,12 +276,19 @@ fun SwipeableRow(
 @Composable
 fun TodoRow(
     todo: Todo,
-    onCheckCompleted: (Todo) -> Unit
+    onCheckCompleted: (Todo) -> Unit,
+    onEditStart: (Todo) -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            .padding(vertical = 4.dp)
+            .combinedClickable(
+                onClick = {},
+                onLongClick = {
+                    onEditStart(todo)
+                }
+            ),
         shape = RoundedCornerShape(16.dp)
     ) {
 

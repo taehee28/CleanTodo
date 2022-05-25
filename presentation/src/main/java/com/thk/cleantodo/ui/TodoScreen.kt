@@ -23,10 +23,8 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -42,9 +40,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.*
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -52,8 +48,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.drawable.DrawableCompat
 import com.thk.cleantodo.R
 import com.thk.cleantodo.ui.theme.CleanTodoTheme
 import com.thk.domain.Todo
@@ -210,186 +206,50 @@ fun TodoList(
     onDeleteTodo: (Todo) -> Unit,
     onEditStart: (Todo) -> Unit
 ) {
+    val scope = rememberCoroutineScope()
+
     LazyColumn(
         modifier = modifier.fillMaxHeight(),
         contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
         state = scrollState
     ) {
-        items(todoItems, { it.num }) {
-            SwipeableMenuRow(
-                todo = it,
-                onCheckCompleted = onCheckCompleted,
-                onDeleteTodo = onDeleteTodo,
-                onEditStart = onEditStart,
-                modifier = Modifier.animateItemPlacement(animationSpec = tween(durationMillis = 300))
-            )
-        }
-    }
-}
+        items(todoItems, { it.num }) { item ->
 
-@Composable
-fun SwipeToDismissRow(
-    todo: Todo,
-    onCheckCompleted: (Todo) -> Unit,
-    onDeleteTodo: (Todo) -> Unit,
-    onEditStart: (Todo) -> Unit,
-    modifier: Modifier = Modifier
-) {
+            SwipeableRow(
+                modifier = Modifier.animateItemPlacement(animationSpec = tween(durationMillis = 300)),
+                backgroundMenu = { animateTo ->
+                    MenuButton(
+                        onClick = {
+                            animateTo(0)
+                            onEditStart(item)
+                        },
+                        backgroundColor = Color(0xFFC4DEFF)
+                    ) {
+                        Icon(
+                            painterResource(id = R.drawable.ic_edit),
+                            "edit",
+                            Modifier.scale(0.8f)
+                        )
+                    }
 
-    val dismissState = rememberDismissState()
-    if (dismissState.isDismissed(DismissDirection.EndToStart)) {
-        onDeleteTodo(todo)
-    }
-
-    SwipeToDismiss(
-        modifier = modifier,
-        state = dismissState,
-        directions = setOf(DismissDirection.EndToStart),
-        background = {
-            val direction = dismissState.dismissDirection ?: return@SwipeToDismiss
-
-            val backgroundAlpha by animateFloatAsState(
-                dismissState.progress.fraction.let {
-                    if (it <= 0.99f) it else 0f
+                    MenuButton(
+                        onClick = { onDeleteTodo(item) },
+                        backgroundColor = Color(0xFFFFB9B9)
+                    ) {
+                        Icon(
+                            painterResource(id = R.drawable.ic_delete),
+                            "delete",
+                            Modifier.scale(0.8f)
+                        )
+                    }
                 }
-            )
-
-            val iconAlpha by animateFloatAsState(
-                if (dismissState.progress.fraction <= 0.99f) 1f else 0f
-            )
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight()
-                    .padding(vertical = 4.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color(0xFFFA8072).copy(alpha = backgroundAlpha))
-                    .padding(end = 16.dp),
-                contentAlignment = Alignment.CenterEnd
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Delete,
-                    contentDescription = "delete",
-                    modifier = Modifier.alpha(iconAlpha)
+            ) { offset ->
+                TodoRow(
+                    todo = item,
+                    onCheckCompleted = onCheckCompleted,
+                    modifier = Modifier.offset { IntOffset(offset, 0) }
                 )
             }
-        },
-        dismissContent = {
-            TodoRow(
-                todo = todo,
-                onCheckCompleted = onCheckCompleted,
-            )
         }
-    )
-}
-
-@Composable
-fun SwipeableMenuRow(
-    todo: Todo,
-    onCheckCompleted: (Todo) -> Unit,
-    onDeleteTodo: (Todo) -> Unit,
-    onEditStart: (Todo) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val swipeableState = rememberSwipeableState(initialValue = 0)
-    val anchor = LocalDensity.current.run { 120.dp.toPx() }
-    val anchors = mapOf(0f to 0, -anchor to 1)
-
-    val scope = rememberCoroutineScope()
-
-
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(60.dp)
-            .padding(vertical = 4.dp)
-            .swipeable(
-                state = swipeableState,
-                orientation = Orientation.Horizontal,
-                anchors = anchors
-            )
-    ) {
-
-        Row(
-            modifier = Modifier
-                .wrapContentWidth()
-                .fillMaxHeight()
-                .align(Alignment.CenterEnd)
-        ) {
-            MenuButton(
-                backgroundColor = Color(0xFFC4DEFF),
-                onClick = {
-                    scope.launch { swipeableState.animateTo(targetValue = 0) }
-                    onEditStart(todo)
-                }
-            ) {
-                Icon(painterResource(id = R.drawable.ic_edit), "edit", Modifier.scale(0.8f))
-            }
-
-            MenuButton(
-                backgroundColor = Color(0xFFFFB9B9),
-                onClick = { onDeleteTodo(todo) }
-            ) {
-                Icon(painterResource(id = R.drawable.ic_delete), "delete", Modifier.scale(0.8f))
-            }
-        }
-
-        TodoRow(
-            todo = todo,
-            onCheckCompleted = onCheckCompleted,
-            modifier = Modifier.offset { IntOffset(swipeableState.offset.value.roundToInt(), 0) }
-        )
-    }
-}
-
-@Composable
-fun MenuButton(
-    onClick: () -> Unit,
-    backgroundColor: Color = Color.Gray,
-    icon: @Composable () -> Unit
-) {
-    androidx.compose.material.IconButton(
-        onClick = onClick,
-        modifier = Modifier
-            .width(60.dp)
-            .fillMaxHeight()
-            .clip(RoundedCornerShape(16.dp))
-            .background(backgroundColor)
-    ) {
-        icon()
-    }
-}
-
-@Composable
-fun TodoRow(
-    todo: Todo,
-    onCheckCompleted: (Todo) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .fillMaxHeight(),
-        shape = RoundedCornerShape(16.dp)
-    ) {
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Checkbox(
-                checked = todo.isCompleted,
-                onCheckedChange = {
-                    onCheckCompleted(todo.copy(isCompleted = it))
-                }
-            )
-
-            Text(
-                text = todo.content,
-                textDecoration = if (todo.isCompleted) TextDecoration.LineThrough else TextDecoration.None
-            )
-        }
-
     }
 }

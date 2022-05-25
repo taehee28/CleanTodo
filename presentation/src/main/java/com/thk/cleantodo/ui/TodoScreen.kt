@@ -212,7 +212,7 @@ fun TodoList(
 ) {
     LazyColumn(
         modifier = modifier.fillMaxHeight(),
-        contentPadding = PaddingValues(horizontal = 8.dp),
+        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
         state = scrollState
     ) {
         items(todoItems, { it.num }) {
@@ -228,7 +228,7 @@ fun TodoList(
 }
 
 @Composable
-fun SwipeableRow(
+fun SwipeToDismissRow(
     todo: Todo,
     onCheckCompleted: (Todo) -> Unit,
     onDeleteTodo: (Todo) -> Unit,
@@ -302,6 +302,8 @@ fun SwipeableMenuRow(
     Box(
         modifier = modifier
             .fillMaxWidth()
+            .height(60.dp)
+            .padding(vertical = 4.dp)
             .swipeable(
                 state = swipeableState,
                 orientation = Orientation.Horizontal,
@@ -311,30 +313,26 @@ fun SwipeableMenuRow(
 
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(64.dp)
-                .padding(vertical = 4.dp),
-            horizontalArrangement = Arrangement.End
+                .wrapContentWidth()
+                .fillMaxHeight()
+                .align(Alignment.CenterEnd)
         ) {
-
-
             MenuButton(
-                icon = painterResource(id = R.drawable.ic_edit),
-                contentDescription = "edit",
                 backgroundColor = Color(0xFFC4DEFF),
                 onClick = {
                     scope.launch { swipeableState.animateTo(targetValue = 0) }
                     onEditStart(todo)
                 }
-            )
+            ) {
+                Icon(painterResource(id = R.drawable.ic_edit), "edit", Modifier.scale(0.8f))
+            }
 
             MenuButton(
-                icon = painterResource(id = R.drawable.ic_delete),
-                contentDescription = "delete",
                 backgroundColor = Color(0xFFFFB9B9),
                 onClick = { onDeleteTodo(todo) }
-            )
-
+            ) {
+                Icon(painterResource(id = R.drawable.ic_delete), "delete", Modifier.scale(0.8f))
+            }
         }
 
         TodoRow(
@@ -343,31 +341,23 @@ fun SwipeableMenuRow(
             modifier = Modifier.offset { IntOffset(swipeableState.offset.value.roundToInt(), 0) }
         )
     }
-
 }
 
 @Composable
 fun MenuButton(
-    icon: Painter,
-    contentDescription: String = "button",
-    backgroundColor: Color = Color.White,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    backgroundColor: Color = Color.Gray,
+    icon: @Composable () -> Unit
 ) {
-
     androidx.compose.material.IconButton(
+        onClick = onClick,
         modifier = Modifier
             .width(60.dp)
-            .height(64.dp)
+            .fillMaxHeight()
             .clip(RoundedCornerShape(16.dp))
-            .background(backgroundColor),
-        onClick = onClick
+            .background(backgroundColor)
     ) {
-        Icon(
-            painter = icon,
-            contentDescription = contentDescription,
-            Modifier
-                .scale(0.8f)
-        )
+        icon()
     }
 }
 
@@ -380,8 +370,7 @@ fun TodoRow(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .height(64.dp)
-            .padding(vertical = 4.dp),
+            .fillMaxHeight(),
         shape = RoundedCornerShape(16.dp)
     ) {
 

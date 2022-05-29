@@ -81,10 +81,11 @@ fun TodoScreen(
     val scope = rememberCoroutineScope()
 
     Scaffold(
+        backgroundColor = MaterialTheme.colorScheme.background,
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Text(text = "To-do List", style = MaterialTheme.typography.titleLarge)
+                    Text(text = "To-do List", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onBackground)
                 }
             )
         },

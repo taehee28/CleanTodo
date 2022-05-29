@@ -38,7 +38,7 @@ import kotlin.math.roundToInt
  * @param modifier
  * @param backgroundMenu content 뒤에 나타날 버튼들을 표시하는 컴포저블. targetValue 값을 받아서
  * swipeableState.animateTo를 호출하는 람다를 인자로 받는다.
- * @param content 스와이프 될 컴포저블. offset을 인자로 넘기며, content 안의 컴포저블에게
+ * @param content 스와이프 될 컴포저블. offset을 인자로 받으며, content 안의 컴포저블에게
  * offset을 전달해서 스와이프 하는대로 움직일 수 있도록 해야한다.
  */
 @Composable

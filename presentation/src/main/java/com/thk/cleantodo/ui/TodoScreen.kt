@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.thk.cleantodo.R
 import com.thk.cleantodo.ui.theme.CleanTodoTheme
+import com.thk.cleantodo.util.logd
 import com.thk.domain.Todo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -218,6 +219,10 @@ fun TodoList(
             SwipeableRow(
                 modifier = Modifier.animateItemPlacement(animationSpec = tween(durationMillis = 300)),
                 backgroundMenu = { animateTo ->
+                    if (scrollState.isScrollInProgress) {
+                        animateTo(0)
+                    }
+
                     MenuButton(
                         onClick = {
                             animateTo(0)

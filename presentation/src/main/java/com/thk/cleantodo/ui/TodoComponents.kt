@@ -6,6 +6,7 @@ package com.thk.cleantodo.ui
  * TodoScreen.kt에서 사용하는 ui 컴포넌트들
  */
 
+import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
@@ -53,7 +54,11 @@ fun SwipeableRow(
     val anchors = mapOf(0f to 0, -anchor to 1)
 
     val scope = rememberCoroutineScope()
-    val animateTo = { value: Int -> scope.launch { swipeableState.animateTo(value) } }
+    val animateTo = { value: Int ->
+        if (swipeableState.currentValue != value) {
+            scope.launch { swipeableState.animateTo(value) }
+        }
+    }
 
     Box(
         modifier = modifier

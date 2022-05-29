@@ -138,6 +138,7 @@ fun TodoRow(
 
             Text(
                 text = todo.content,
+                maxLines = 1,
                 textDecoration = if (todo.isCompleted) TextDecoration.LineThrough else TextDecoration.None
             )
         }

@@ -207,8 +207,6 @@ fun TodoList(
     onDeleteTodo: (Todo) -> Unit,
     onEditStart: (Todo) -> Unit
 ) {
-    val scope = rememberCoroutineScope()
-
     LazyColumn(
         modifier = modifier.fillMaxHeight(),
         contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),

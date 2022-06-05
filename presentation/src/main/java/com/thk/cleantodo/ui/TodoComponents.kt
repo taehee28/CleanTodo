@@ -37,6 +37,7 @@ import kotlin.math.roundToInt
 /**
  * 스와이프 가능한 Row
  *
+ * @param state
  * @param modifier
  * @param backgroundMenu content 뒤에 나타날 버튼들을 표시하는 컴포저블. targetValue 값을 받아서
  * swipeableState.animateTo를 호출하는 람다를 인자로 받는다.
@@ -45,21 +46,15 @@ import kotlin.math.roundToInt
  */
 @Composable
 fun SwipeableRow(
+    state: SwipeableState<Int>,
     modifier: Modifier = Modifier,
-    backgroundMenu: @Composable ((Int) -> Unit) -> Unit = {},
+    backgroundMenu: @Composable () -> Unit = {},
     content: @Composable (offset: Int) -> Unit,
 ) {
-    val swipeableState = rememberSwipeableState(initialValue = 0)
+//    val swipeableState = rememberSwipeableState(initialValue = 0)
     var rowSize by remember { mutableStateOf(IntSize.Zero) }
     val anchor = rowSize.width.toFloat()
     val anchors = mapOf(0f to 0, -anchor to 1)
-
-    val scope = rememberCoroutineScope()
-    val animateTo = { value: Int ->
-        if (swipeableState.currentValue != value) {
-            scope.launch { swipeableState.animateTo(value) }
-        }
-    }
 
     Box(
         modifier = modifier
@@ -67,7 +62,7 @@ fun SwipeableRow(
             .height(60.dp)
             .padding(vertical = 4.dp)
             .swipeable(
-                state = swipeableState,
+                state = state,
                 orientation = Orientation.Horizontal,
                 anchors = anchors
             )
@@ -79,10 +74,10 @@ fun SwipeableRow(
                 .align(Alignment.CenterEnd)
                 .onSizeChanged { rowSize = it }
         ) {
-            backgroundMenu(animateTo)
+            backgroundMenu()
         }
 
-        val intOffset = swipeableState.offset.value.let { if (it.isNaN()) 0 else it.roundToInt() }
+        val intOffset = state.offset.value.let { if (it.isNaN()) 0 else it.roundToInt() }
         content(intOffset)
     }
 

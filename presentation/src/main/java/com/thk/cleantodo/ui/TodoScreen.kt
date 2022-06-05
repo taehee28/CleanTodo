@@ -11,10 +11,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -213,18 +210,28 @@ fun TodoList(
         contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
         state = scrollState
     ) {
-        items(todoItems, { it.num }) { item ->
+        itemsIndexed(todoItems, { _, item -> item.num }) { index, item ->
+            val swipeableState = rememberSwipeableState(initialValue = 0)
+            val scope = rememberCoroutineScope()
+
+            val backToPosition = {
+                if (swipeableState.currentValue != 0) {
+                    Log.d("TAG", "TodoList: back to position")
+                    scope.launch { swipeableState.animateTo(0) }
+                }
+            }
 
             SwipeableRow(
+                state = swipeableState,
                 modifier = Modifier.animateItemPlacement(animationSpec = tween(durationMillis = 300)),
-                backgroundMenu = { animateTo ->
+                backgroundMenu = {
                     if (scrollState.isScrollInProgress) {
-                        animateTo(0)
+                        backToPosition()
                     }
 
                     MenuButton(
                         onClick = {
-                            animateTo(0)
+                            backToPosition()
                             onEditStart(item)
                         },
                         backgroundColor = Color(0xFFC4DEFF)

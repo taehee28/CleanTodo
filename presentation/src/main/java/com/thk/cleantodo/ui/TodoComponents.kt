@@ -25,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.style.TextDecoration
@@ -103,7 +104,7 @@ fun MenuButton(
             .width(60.dp)
             .fillMaxHeight()
             .clip(RoundedCornerShape(16.dp))
-            .background(backgroundColor)
+            .drawBehind { drawRect(backgroundColor) }
     ) {
         icon()
     }

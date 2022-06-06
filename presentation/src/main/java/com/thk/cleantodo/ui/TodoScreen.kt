@@ -205,6 +205,8 @@ fun TodoList(
     onDeleteTodo: (Todo) -> Unit,
     onEditStart: (Todo) -> Unit
 ) {
+    val isScroll by remember { derivedStateOf { scrollState.isScrollInProgress } }
+
     LazyColumn(
         modifier = modifier.fillMaxHeight(),
         contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
@@ -214,10 +216,12 @@ fun TodoList(
             val swipeableState = rememberSwipeableState(initialValue = 0)
             val scope = rememberCoroutineScope()
 
-            val backToPosition = {
-                if (swipeableState.currentValue != 0) {
-                    Log.d("TAG", "TodoList: back to position")
-                    scope.launch { swipeableState.animateTo(0) }
+            if (swipeableState.currentValue != 0) {
+                LaunchedEffect(isScroll) {
+                    if (isScroll) {
+                        Log.d("TAG", "TodoList: launchedEffect")
+                        swipeableState.animateTo(0)
+                    }
                 }
             }
 
@@ -225,13 +229,9 @@ fun TodoList(
                 state = swipeableState,
                 modifier = Modifier.animateItemPlacement(animationSpec = tween(durationMillis = 300)),
                 backgroundMenu = {
-                    if (scrollState.isScrollInProgress) {
-                        backToPosition()
-                    }
-
                     MenuButton(
                         onClick = {
-                            backToPosition()
+                            scope.launch { swipeableState.animateTo(0) }
                             onEditStart(item)
                         },
                         backgroundColor = Color(0xFFC4DEFF)

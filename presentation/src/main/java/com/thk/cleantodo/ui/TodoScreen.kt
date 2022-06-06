@@ -207,6 +207,9 @@ fun TodoList(
 ) {
     val isScroll by remember { derivedStateOf { scrollState.isScrollInProgress } }
 
+    // State로 remember 해서 해당 값을 읽는 Row들이 영향을 받도록
+    var inSwipeItemIndex: Int? by remember { mutableStateOf(null) }
+
     LazyColumn(
         modifier = modifier.fillMaxHeight(),
         contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
@@ -216,10 +219,25 @@ fun TodoList(
             val swipeableState = rememberSwipeableState(initialValue = 0)
             val scope = rememberCoroutineScope()
 
+            // Row가 왼쪽으로 움직이면 true, 나머지는 false
+            val isSwipeProgress by remember { derivedStateOf { swipeableState.direction == -1.0f } }
+
+            // 움직인 Row의 index로 값 변경
+            if (isSwipeProgress) {
+                inSwipeItemIndex = index
+            }
+
+            // index 값이 변경되면 화면에 보이는 모든 Row에서 해당 Effect가 실행됨
+            LaunchedEffect(inSwipeItemIndex) {
+                if (swipeableState.currentValue != 0) {
+                    // 현재 swipe된 상태면 원래 위치로 animate
+                    swipeableState.animateTo(0)
+                }
+            }
+
             if (swipeableState.currentValue != 0) {
-                LaunchedEffect(isScroll) {
-                    if (isScroll) {
-                        Log.d("TAG", "TodoList: launchedEffect")
+                if (isScroll) {
+                    LaunchedEffect(isScroll) {
                         swipeableState.animateTo(0)
                     }
                 }

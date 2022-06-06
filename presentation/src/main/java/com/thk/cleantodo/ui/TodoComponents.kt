@@ -49,7 +49,7 @@ fun SwipeableRow(
     state: SwipeableState<Int>,
     modifier: Modifier = Modifier,
     backgroundMenu: @Composable () -> Unit = {},
-    content: @Composable (offset: Int) -> Unit,
+    content: @Composable (offsetProvider: () -> Int) -> Unit,
 ) {
 //    val swipeableState = rememberSwipeableState(initialValue = 0)
     var rowSize by remember { mutableStateOf(IntSize.Zero) }
@@ -77,8 +77,9 @@ fun SwipeableRow(
             backgroundMenu()
         }
 
-        val intOffset = state.offset.value.let { if (it.isNaN()) 0 else it.roundToInt() }
-        content(intOffset)
+        content {
+            state.offset.value.let { if (it.isNaN()) 0 else it.roundToInt() }
+        }
     }
 
 }

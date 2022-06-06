@@ -254,11 +254,11 @@ fun TodoList(
                         )
                     }
                 }
-            ) { offset ->
+            ) { offsetProvider ->
                 TodoRow(
                     todo = item,
                     onCheckCompleted = onCheckCompleted,
-                    modifier = Modifier.offset { IntOffset(offset, 0) }
+                    modifier = Modifier.offset { IntOffset(offsetProvider(), 0) }
                 )
             }
         }

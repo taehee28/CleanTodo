@@ -208,7 +208,7 @@ fun TodoList(
     val isScroll by remember { derivedStateOf { scrollState.isScrollInProgress } }
 
     // State로 remember 해서 해당 값을 읽는 Row들이 영향을 받도록
-    var inSwipeItemIndex: Int? by remember { mutableStateOf(null) }
+    var inSwipeItemIndex: Int by remember { mutableStateOf(-1) }
 
     LazyColumn(
         modifier = modifier.fillMaxHeight(),
@@ -221,25 +221,32 @@ fun TodoList(
 
             // Row가 왼쪽으로 움직이면 true, 나머지는 false
             val isSwipeProgress by remember { derivedStateOf { swipeableState.direction == -1.0f } }
+            val isSwiped by remember { derivedStateOf { swipeableState.currentValue == 1 } }
 
-            // 움직인 Row의 index로 값 변경
-            if (isSwipeProgress) {
-                inSwipeItemIndex = index
+            logd(">>>>>>>>>>>> $index")
+
+            LaunchedEffect(isSwipeProgress) {
+                if (isSwipeProgress) {
+                    logd("isSwipeProgress $index")
+                    inSwipeItemIndex = index
+                }
             }
 
+
+            // FIXME: inSwipeItemIndex가 State라서 값이 바뀌면 recomposition이 발생해버림. 
+            //        값이 바뀌었을 때 recompositoin이 발생하지 않으면서
+            //        모든 Row의 LaunchedEffect가 실행되도록 해야 함...
             // index 값이 변경되면 화면에 보이는 모든 Row에서 해당 Effect가 실행됨
             LaunchedEffect(inSwipeItemIndex) {
-                if (swipeableState.currentValue != 0) {
-                    // 현재 swipe된 상태면 원래 위치로 animate
+                if (isSwiped || isSwipeProgress) {
+                    // 현재 swipe되었거나, swipe중인 상태라면 원래 위치로 animate
                     swipeableState.animateTo(0)
                 }
             }
 
-            if (swipeableState.currentValue != 0) {
-                if (isScroll) {
-                    LaunchedEffect(isScroll) {
-                        swipeableState.animateTo(0)
-                    }
+            LaunchedEffect(isScroll) {
+                if (isScroll && isSwiped) {
+                    swipeableState.animateTo(0)
                 }
             }
 

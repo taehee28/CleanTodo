@@ -1,10 +1,8 @@
 package com.thk.cleantodo
 
 import androidx.compose.runtime.*
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.thk.cleantodo.util.logd
 import com.thk.domain.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
